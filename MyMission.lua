@@ -1,5 +1,5 @@
 local MyGameMode = {
-	OpForCount = 15,
+	OpForCount = 3,
 	OpForTeamId = 100,
 	OpForTeamTag = "OpFor",
 }
@@ -13,9 +13,23 @@ function MyGameMode:new()
 end
 
 function MyGameMode:PostRun()
-	local AllSpawns = gameplaystatics.GetAllActorsOfClass('GroundBranch.GBAISpawnPoint')
+	local triggers = gameplaystatics.GetAllActorsOfClassWithTag('GroundBranch.GBGameTrigger', "MyTrigger")
+	actor.SetActive(triggers[1], true)
 
-	ai.CreateAIOverDuration(4.0, self.OpForCount, AllSpawns, self.OpForTeamTag)
+	-- local AllSpawns = gameplaystatics.GetAllActorsOfClass('GroundBranch.GBAISpawnPoint')
+	-- ai.CreateOverDuration(4.0, self.OpForCount, AllSpawns, self.OpForTeamTag)
+end
+
+function MyGameMode:OnGameTriggerBeginOverlap(GameTrigger, Character)
+	print("OnGameTriggerBeginOverlap")
+	print(actor.__tostring(Character))
+
+	local triggers = gameplaystatics.GetAllActorsOfClassWithTag('GroundBranch.GBGameTrigger', "MyTrigger")
+	if GameTrigger == triggers[1] then
+		print("Success!")
+		local AllSpawns = gameplaystatics.GetAllActorsOfClass('GroundBranch.GBAISpawnPoint')
+		ai.CreateOverDuration(4.0, self.OpForCount, AllSpawns, self.OpForTeamTag)
+	end
 end
 
 function MyGameMode:PlayerGameModeRequest(PlayerState, Request)

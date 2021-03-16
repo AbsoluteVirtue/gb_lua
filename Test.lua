@@ -6,6 +6,9 @@
 -- It's a tie if VIP dies but team Red is wiped out
 
 local MyGameMode = {
+	BluForTeamId = 1,
+	BluForTeamTag = "BluFor",
+	BluForLoadoutName = "NoTeam",
 	OpForCount = 15,
 	OpForTeamId = 100,
 	OpForTeamTag = "OpFor",
@@ -27,12 +30,18 @@ function MyGameMode:new()
 	return self
 end
 
-function MyGameMode:PostRun()
-	-- local AllSpawns = gameplaystatics.GetAllActorsOfClass(
-	-- 	'GroundBranch.GBAISpawnPoint')
+function MyGameMode:PrintTeamCount(TeamId)
+	local BluForPlayers = gamemode.GetPlayerList("Lives", TeamId, true, 1, false)
+	local Players = gamemode.GetPlayerCount(true)
+	print("Init finished, team/players: " .. #BluForPlayers .. "/" .. Players)
+end
 
-	-- ai.CreateOverDuration(4.0, self.OpForCount, AllSpawns, self.OpForTeamTag)
-	
+function MyGameMode:PostRun()
+	local AllSpawns = gameplaystatics.GetAllActorsOfClass(
+		'GroundBranch.GBAISpawnPoint')
+
+	ai.CreateOverDuration(4.0, self.OpForCount, AllSpawns, self.OpForTeamTag)
+
 	self.ExtractionPoints = gameplaystatics.GetAllActorsOfClass(
 		'/Game/GroundBranch/Props/GameMode/BP_ExtractionPoint.BP_ExtractionPoint_C')
 	for i = 1, #self.ExtractionPoints do
@@ -47,13 +56,19 @@ function MyGameMode:PostRun()
 		actor.SetActive(self.ExtractionPoints[i], bActive)
 		actor.SetActive(self.ExtractionPointMarkers[i], bActive)
 	end
-	-- actor.SetActive(self.BluForExtractionPointTag, true)
 
-	-- self.ExtractionPoints = gameplaystatics.GetAllActorsOfClassWithTag(
-	-- 	'GroundBranch.GBGameTrigger',
-	-- 	self.BluForExtracionPointTag)
-		
-	-- actor.SetActive(self.ExtractionPoints[0], true)
+	local triggers = gameplaystatics.GetAllActorsOfClassWithTag(
+		'GroundBranch.GBGameTrigger', self.BluForExtractionPointTag)
+	for i = 1, #triggers do
+		actor.SetActive(triggers[i], true)
+	end
+
+	gamemode.AddPlayerTeam(self.BluForTeamId, self.BluForTeamTag, self.BluForLoadoutName)
+
+	local allPlayers = gameplaystatics.GetAllActorsOfClass('/Game/GBCore/Character/BP_Character.BP_Character_C')
+	for i = 1, #allPlayers do
+		actor.SetTeamId(allPlayers[i], self.BluForTeamId)
+	end
 end
 
 function MyGameMode:PlayerGameModeRequest(PlayerState, Request)
@@ -80,12 +95,15 @@ function MyGameMode:OnCharacterDied(Character, CharacterController, KillerContro
 end
 
 function MyGameMode:OnGameTriggerBeginOverlap(GameTrigger, Character)
-	local AllSpawns = gameplaystatics.GetAllActorsOfClass(
-		'GroundBranch.GBAISpawnPoint')
+	print(actor.__tostring(GameTrigger))
+	print(actor.__tostring(Character))
 
-	ai.CreateOverDuration(4.0, self.OpForCount, AllSpawns, self.OpForTeamTag)
+	actor.SetTeamId(Character, self.BluForTeamId)
+
+	print(actor.GetTeamId(Character))
+	-- player.IsAlive(Player)
 	
-	GS.GetAllActorsOfClass('GroundBranch.GBAISpawnPoint')
+	-- print('This is my message: ' .. os.time())
 
 	-- if self.OpForLeaderEliminated == true then
 	-- 	actor.SetActive(self.BluForExtractionPointTag, true)
@@ -123,7 +141,7 @@ function MyGameMode:CheckOpForExfilTimer()
 
 		for j = 1, #Overlaps do
 			if Overlaps[j] == LivingCharacter then
-				GS.GetAllActorsOfClass('GroundBranch.GBAISpawnPoint')
+				print('This is my message: ' .. os.time())
 				bLivingOverlap = true
 				bExfiltrated = true
 				break
