@@ -100,6 +100,7 @@ MyGameMode:PostRun()
 
 	local allPlayers = gameplaystatics.GetAllActorsOfClass('/Game/GBCore/Character/BP_Character.BP_Character_C')
 	for i = 1, #allPlayers do
+		print(getmetatable(allPlayers[i]))
 		actor.SetTeamId(allPlayers[i], self.BluForTeamId)
 		print(actor.GetTeamId(allPlayers[i]))
 	end

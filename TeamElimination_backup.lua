@@ -5,8 +5,6 @@ local teamelimination = {
 	RedTeamId = 2,
 	RedTeamTag = "Red",
 	RedTeamLoadoutName = "Red",
-	VipTag = "Vip",
-	VipLoadoutName = "Vip",
 	RoundResult = "",
 	InsertionPoints = {},
 	bFixedInsertionPoints = false,
@@ -38,8 +36,9 @@ function teamelimination:PostRun()
 		end
 	else
 		self.InsertionPoints = AllInsertionPoints
-		for _, InsertionPoint in ipairs(self.InsertionPoints) do
+		for i, InsertionPoint in ipairs(self.InsertionPoints) do
 			if actor.GetTeamId(InsertionPoint) ~= 255 then
+				-- Disables insertion point randomisation.
 				self.bFixedInsertionPoints = true
 				break
 			end
@@ -108,8 +107,6 @@ function teamelimination:OnRoundStageSet(RoundStage)
 				self:RandomiseInsertionPoints(self.InsertionPoints)
 			end
 		end
-	elseif RoundStage == "InProgress" then
-		gamemode.BroadcastGameMessage("VIP is on site", 3.0)
 	end
 end
 
@@ -125,7 +122,7 @@ end
 function teamelimination:CheckEndRoundTimer()
 	local BluePlayers = gamemode.GetPlayerList("Lives", self.BlueTeamId, true, 1, false)
 	local RedPlayers = gamemode.GetPlayerList("Lives", self.RedTeamId, true, 1, false)
-
+	
 	if #BluePlayers > 0 and #RedPlayers == 0 then
 		gamemode.AddGameStat("Result=Team1")
 		gamemode.AddGameStat("Summary=RedEliminated")
@@ -141,14 +138,6 @@ function teamelimination:CheckEndRoundTimer()
 		gamemode.AddGameStat("Summary=BothEliminated")
 		gamemode.SetRoundStage("PostRoundWait")
 	end
-
-	local allPlayers = gameplaystatics.GetAllActorsOfClass('/Game/GBCore/Character/BP_Character.BP_Character_C')
-	for i = 1, #allPlayers do
-		local tags = GetTags(allPlayers[i])
-		for j = 1, #tags do
-			print(tags[j])
-		end
-	end
 end
 
 function teamelimination:RandomiseInsertionPointGroups()
@@ -162,7 +151,7 @@ function teamelimination:RandomiseInsertionPointGroups()
 	
 	local GroupIndex = 0
 	
-	for _, Value in pairs(self.InsertionPoints) do
+	for Key, Value in pairs(self.InsertionPoints) do
 		GroupIndex = GroupIndex + 1
 		if GroupIndex == NewGroupIndex then
 			self:RandomiseInsertionPoints(Value)
@@ -176,12 +165,12 @@ function teamelimination:RandomiseInsertionPointGroups()
 end
 
 function teamelimination:RandomiseInsertionPoints(TargetInsertionPoints)
+	local ShuffledInsertionPoints = {}
+
 	if #TargetInsertionPoints < 2 then
 		print("Error: #TargetInsertionPoints < 2")
 		return
 	end
-
-	local continue = true
 
 	local BlueIndex = umath.random(#TargetInsertionPoints)
 	local RedIndex = BlueIndex + umath.random(#TargetInsertionPoints - 1)
@@ -194,10 +183,6 @@ function teamelimination:RandomiseInsertionPoints(TargetInsertionPoints)
 			actor.SetActive(InsertionPoint, true)
 			actor.SetTeamId(InsertionPoint, self.BlueTeamId)
 		elseif i == RedIndex then
-			if not continue then
-				actor.AddTag(InsertionPoint, self.VipTag)
-				continue = true
-			end
 			actor.SetActive(InsertionPoint, true)
 			actor.SetTeamId(InsertionPoint, self.RedTeamId)
 		else
