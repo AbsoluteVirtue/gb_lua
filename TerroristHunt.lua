@@ -139,6 +139,10 @@ function terroristhunt:SpawnOpFor()
 end
 
 function terroristhunt:OnCharacterDied(Character, CharacterController, KillerController)
+	local tags = actor.GetTags(CharacterController)
+	for i = 1, #tags do
+		print(tags[i])
+	end
 	if gamemode.GetRoundStage() == "PreRoundWait" or gamemode.GetRoundStage() == "InProgress" then
 		if CharacterController ~= nil then
 			if actor.HasTag(CharacterController, self.OpForTeamTag) then

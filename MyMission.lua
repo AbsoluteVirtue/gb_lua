@@ -21,8 +21,8 @@ function MyGameMode:PostRun()
 end
 
 function MyGameMode:OnGameTriggerBeginOverlap(GameTrigger, Character)
-	print("OnGameTriggerBeginOverlap")
 	print(actor.__tostring(Character))
+	print(actor.__tostring(GameTrigger))
 
 	local triggers = gameplaystatics.GetAllActorsOfClassWithTag('GroundBranch.GBGameTrigger', "MyTrigger")
 	if GameTrigger == triggers[1] then
