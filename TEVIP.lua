@@ -16,11 +16,11 @@ local teamelimination = {
 
 function teamelimination:PostRun()
 	local AllInsertionPoints = gameplaystatics.GetAllActorsOfClass('GroundBranch.GBInsertionPoint')
-	
+
 	if #AllInsertionPoints > 2 then
 		local GroupedInsertionPoints = {}
-		
-		for i, InsertionPoint in ipairs(AllInsertionPoints) do
+
+		for _, InsertionPoint in ipairs(AllInsertionPoints) do
 			if #actor.GetTags(InsertionPoint) > 1 then
 				local Group = actor.GetTag(InsertionPoint, 1)
 				if GroupedInsertionPoints[Group] == nil then
@@ -109,6 +109,12 @@ function teamelimination:OnRoundStageSet(RoundStage)
 			end
 		end
 	elseif RoundStage == "InProgress" then
+		local VipCandidates = gamemode.GetPlayerList("Lives", self.BlueTeamId, true, 1, false)
+
+		local VipIndex = umath.random(#VipCandidates)
+		actor.AddTag(VipCandidates[VipIndex], self.VipTag)
+		player.ShowGameMessage(VipCandidates[VipIndex], "You're the VIP this round", 5.0)
+
 		gamemode.BroadcastGameMessage("VIP is on site", 3.0)
 	end
 end
@@ -116,6 +122,13 @@ end
 function teamelimination:OnCharacterDied(Character, CharacterController, KillerController)
 	if gamemode.GetRoundStage() == "PreRoundWait" or gamemode.GetRoundStage() == "InProgress" then
 		if CharacterController ~= nil then
+			if actor.HasTag(CharacterController, self.VipTag) then
+				gamemode.BroadcastGameMessage("VIP has been eliminated", 3.0)
+				gamemode.AddGameStat("Result=Team2")
+				gamemode.AddGameStat("Summary=BlueEliminated")
+				gamemode.AddGameStat("CompleteObjectives=EliminateRed")
+				gamemode.SetRoundStage("PostRoundWait")
+			end
 			player.SetLives(CharacterController, player.GetLives(CharacterController) - 1)
 			timer.Set(self, "CheckEndRoundTimer", 1.0, false);
 		end
@@ -141,14 +154,6 @@ function teamelimination:CheckEndRoundTimer()
 		gamemode.AddGameStat("Summary=BothEliminated")
 		gamemode.SetRoundStage("PostRoundWait")
 	end
-
-	local allPlayers = gameplaystatics.GetAllActorsOfClass('/Game/GBCore/Character/BP_Character.BP_Character_C')
-	for i = 1, #allPlayers do
-		local tags = actor.GetTags(allPlayers[i])
-		for j = 1, #tags do
-			print(tags[j])
-		end
-	end
 end
 
 function teamelimination:RandomiseInsertionPointGroups()
@@ -159,9 +164,9 @@ function teamelimination:RandomiseInsertionPointGroups()
 	end
 
 	self.PrevGroupIndex = NewGroupIndex
-	
+
 	local GroupIndex = 0
-	
+
 	for _, Value in pairs(self.InsertionPoints) do
 		GroupIndex = GroupIndex + 1
 		if GroupIndex == NewGroupIndex then
@@ -181,8 +186,6 @@ function teamelimination:RandomiseInsertionPoints(TargetInsertionPoints)
 		return
 	end
 
-	local continue = true
-
 	local BlueIndex = umath.random(#TargetInsertionPoints)
 	local RedIndex = BlueIndex + umath.random(#TargetInsertionPoints - 1)
 	if RedIndex > #TargetInsertionPoints then
@@ -194,10 +197,6 @@ function teamelimination:RandomiseInsertionPoints(TargetInsertionPoints)
 			actor.SetActive(InsertionPoint, true)
 			actor.SetTeamId(InsertionPoint, self.BlueTeamId)
 		elseif i == RedIndex then
-			if not continue then
-				actor.AddTag(InsertionPoint, self.VipTag)
-				continue = true
-			end
 			actor.SetActive(InsertionPoint, true)
 			actor.SetTeamId(InsertionPoint, self.RedTeamId)
 		else

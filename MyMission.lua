@@ -15,9 +15,6 @@ end
 function MyGameMode:PostRun()
 	local triggers = gameplaystatics.GetAllActorsOfClassWithTag('GroundBranch.GBGameTrigger', "MyTrigger")
 	actor.SetActive(triggers[1], true)
-
-	-- local AllSpawns = gameplaystatics.GetAllActorsOfClass('GroundBranch.GBAISpawnPoint')
-	-- ai.CreateOverDuration(4.0, self.OpForCount, AllSpawns, self.OpForTeamTag)
 end
 
 function MyGameMode:OnGameTriggerBeginOverlap(GameTrigger, Character)
@@ -26,7 +23,6 @@ function MyGameMode:OnGameTriggerBeginOverlap(GameTrigger, Character)
 
 	local triggers = gameplaystatics.GetAllActorsOfClassWithTag('GroundBranch.GBGameTrigger', "MyTrigger")
 	if GameTrigger == triggers[1] then
-		print("Success!")
 		local AllSpawns = gameplaystatics.GetAllActorsOfClass('GroundBranch.GBAISpawnPoint')
 		ai.CreateOverDuration(4.0, self.OpForCount, AllSpawns, self.OpForTeamTag)
 	end

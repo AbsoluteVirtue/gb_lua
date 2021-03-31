@@ -5,8 +5,6 @@ local teamelimination = {
 	RedTeamId = 2,
 	RedTeamTag = "Red",
 	RedTeamLoadoutName = "Red",
-	VipTag = "Vip",
-	VipLoadoutName = "Vip",
 	RoundResult = "",
 	InsertionPoints = {},
 	bFixedInsertionPoints = false,
@@ -19,8 +17,8 @@ function teamelimination:PostRun()
 
 	if #AllInsertionPoints > 2 then
 		local GroupedInsertionPoints = {}
-
-		for _, InsertionPoint in ipairs(AllInsertionPoints) do
+	
+		for i, InsertionPoint in ipairs(AllInsertionPoints) do
 			if #actor.GetTags(InsertionPoint) > 1 then
 				local Group = actor.GetTag(InsertionPoint, 1)
 				if GroupedInsertionPoints[Group] == nil then
@@ -38,8 +36,9 @@ function teamelimination:PostRun()
 		end
 	else
 		self.InsertionPoints = AllInsertionPoints
-		for _, InsertionPoint in ipairs(self.InsertionPoints) do
+		for i, InsertionPoint in ipairs(self.InsertionPoints) do
 			if actor.GetTeamId(InsertionPoint) ~= 255 then
+				-- Disables insertion point randomisation.
 				self.bFixedInsertionPoints = true
 				break
 			end
@@ -108,31 +107,11 @@ function teamelimination:OnRoundStageSet(RoundStage)
 				self:RandomiseInsertionPoints(self.InsertionPoints)
 			end
 		end
-	elseif RoundStage == "InProgress" then
-		-- local AllPlayers = gameplaystatics.GetAllActorsOfClass('/Game/GBCore/Character/BP_Character.BP_Character_C')
-		local VipCandidates = gamemode.GetPlayerList("Lives", self.BlueTeamId, true, 1, false)
-		
-		local VipIndex = umath.random(#VipCandidates)
-		actor.AddTag(VipCandidates[VipIndex], self.VipTag)
-		player.ShowGameMessage(VipCandidates[VipIndex], "You're the VIP this round", 5.0)
-
-		gamemode.BroadcastGameMessage("VIP is on site", 3.0)
 	end
 end
 
 function teamelimination:OnCharacterDied(Character, CharacterController, KillerController)
 	if gamemode.GetRoundStage() == "PreRoundWait" or gamemode.GetRoundStage() == "InProgress" then
-
-		if Character ~= nil then
-			if actor.HasTag(Character, self.VipTag) then
-				gamemode.BroadcastGameMessage("VIP has been eliminated", 3.0)
-				gamemode.AddGameStat("Result=Team2")
-				gamemode.AddGameStat("Summary=BlueEliminated")
-				gamemode.AddGameStat("CompleteObjectives=EliminateRed")
-				gamemode.SetRoundStage("PostRoundWait")
-			end
-		end
-
 		if CharacterController ~= nil then
 			player.SetLives(CharacterController, player.GetLives(CharacterController) - 1)
 			timer.Set(self, "CheckEndRoundTimer", 1.0, false);
@@ -169,10 +148,10 @@ function teamelimination:RandomiseInsertionPointGroups()
 	end
 
 	self.PrevGroupIndex = NewGroupIndex
-	
+
 	local GroupIndex = 0
-	
-	for _, Value in pairs(self.InsertionPoints) do
+
+	for Key, Value in pairs(self.InsertionPoints) do
 		GroupIndex = GroupIndex + 1
 		if GroupIndex == NewGroupIndex then
 			self:RandomiseInsertionPoints(Value)
@@ -186,6 +165,8 @@ function teamelimination:RandomiseInsertionPointGroups()
 end
 
 function teamelimination:RandomiseInsertionPoints(TargetInsertionPoints)
+	local ShuffledInsertionPoints = {}
+
 	if #TargetInsertionPoints < 2 then
 		print("Error: #TargetInsertionPoints < 2")
 		return
