@@ -291,7 +291,7 @@ function intel:CheckOpForExfilTimer()
 		 	gamemode.SetRoundStage("PostRoundWait")
 		elseif not self.TeamExfilWarning then
 			self.TeamExfilWarning = true
-			player.ShowGameMessage(Character, "TeamExfil", 5.0)
+			-- player.ShowGameMessage(Character, "TeamExfil", 5.0)
 		end
 	end
 end

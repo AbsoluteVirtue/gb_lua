@@ -144,7 +144,7 @@ function teamelimination:CheckEndRoundTimer()
 
 	local allPlayers = gameplaystatics.GetAllActorsOfClass('/Game/GBCore/Character/BP_Character.BP_Character_C')
 	for i = 1, #allPlayers do
-		local tags = GetTags(allPlayers[i])
+		local tags = actor.GetTags(allPlayers[i])
 		for j = 1, #tags do
 			print(tags[j])
 		end

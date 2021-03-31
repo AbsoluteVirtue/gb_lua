@@ -105,7 +105,8 @@ MyGameMode:PostRun()
 		print(actor.GetTeamId(allPlayers[i]))
 	end
 
-	-- gamemode.SetRoundStage("InProgress")
+	-- gamemode.AddGameRule("UseReadyRoom")
+	-- gamemode.SetRoundStage("WaitingForReady")
 end
 
 function
@@ -113,8 +114,8 @@ MyGameMode:PlayerGameModeRequest(PlayerState, Request)
 	print("-------------------------------------PlayerGameModeRequest")
 
 	if PlayerState ~= nil then
-		if Command == "join"  then
-			EnterPlayArea(PlayerState)
+		if Request == "join"  then
+			gamemode.EnterPlayArea(PlayerState)
 		end
 	end
 end

@@ -34,8 +34,8 @@ end
 
 function MyGameMode:PlayerGameModeRequest(PlayerState, Request)
 	if PlayerState ~= nil then
-		if Command == "join"  then
-			EnterPlayArea(PlayerState)
+		if Request == "join"  then
+			gamemode.EnterPlayArea(PlayerState)
 		end
 	end
 end
