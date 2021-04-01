@@ -135,11 +135,11 @@ MyGameMode:OnCharacterDied(Character, CharacterController, KillerController)
 				print("-------------------------------------OpForBoss check")
 				self.OpForLeaderEliminated = true
 
-				for i = 1, #self.ExtractionPoints do
-					local bActive = (i == self.ExtractionPointIndex)
-					actor.SetActive(self.ExtractionPoints[i], bActive)
-					actor.SetActive(self.ExtractionPointMarkers[i], bActive)
-				end
+				-- for i = 1, #self.ExtractionPoints do
+				-- 	local bActive = (i == self.ExtractionPointIndex)
+				-- 	actor.SetActive(self.ExtractionPoints[i], bActive)
+				-- 	actor.SetActive(self.ExtractionPointMarkers[i], bActive)
+				-- end
 			elseif actor.HasTag(CharacterController, "OpFor") then
 				print("-------------------------------------OpFor check")
 				timer.Set(self, "CheckOpForCountTimer", 1.0, false);
@@ -158,7 +158,7 @@ MyGameMode:OnGameTriggerBeginOverlap(GameTrigger, Character)
 	print(actor.__tostring(GameTrigger))
 
 	-- player.IsAlive(Player)
-	
+
 	-- print(os.time())
 
 	if self.OpForLeaderEliminated == true then
@@ -169,8 +169,6 @@ MyGameMode:OnGameTriggerBeginOverlap(GameTrigger, Character)
 	end
 	if self.TeamExfil then
 		timer.Set(self, "CheckOpForExfilTimer", 1.0, true)
-	else
-
 	end
 end
 
@@ -192,7 +190,7 @@ MyGameMode:CheckOpForExfilTimer()
 
 	local Overlaps = actor.GetOverlaps(self.ExtractionPoints[self.ExtractionPointIndex], 'GroundBranch.GBCharacter')
 	local LivingPlayers = gamemode.GetSortedPlayerList("Lives", self.BluForTeamId, true, 1, false)
-	
+
 	local bExfiltrated = false
 	local bLivingOverlap = false
 
@@ -221,6 +219,20 @@ MyGameMode:CheckOpForExfilTimer()
 		gamemode.AddGameStat("Summary=IntelRetrieved")
 		gamemode.AddGameStat("CompleteObjectives=RetrieveIntel,ExfiltrateBluFor")
 		gamemode.SetRoundStage("PostRoundWait")
+	end
+end
+
+function
+MyGameMode:CheckOpForCountTimer()
+	print("-------------------------------------CheckOpForCountTimer")
+	local OpForControllers = ai.GetControllers('GroundBranch.GBAIController', self.OpForTeamTag, 255, 255)
+
+	print("remaining: ", #OpForControllers, "cutoff: ", (self.OpForCount / 2))
+	if #OpForControllers < (self.OpForCount / 2) then
+		gamemode.BroadcastGameMessage("Extract", 3.0)
+		for i = 1, #self.ExtractionPoints do
+			actor.SetActive(self.ExtractionPoints[i], true)
+		end
 	end
 end
 

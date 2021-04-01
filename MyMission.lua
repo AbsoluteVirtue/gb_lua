@@ -1,5 +1,5 @@
 local MyGameMode = {
-	OpForCount = 3,
+	OpForCount = 10,
 	OpForTeamId = 100,
 	OpForTeamTag = "OpFor",
 }
