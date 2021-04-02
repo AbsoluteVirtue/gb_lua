@@ -17,7 +17,7 @@ function teamelimination:PostRun()
 
 	if #AllInsertionPoints > 2 then
 		local GroupedInsertionPoints = {}
-	
+
 		for i, InsertionPoint in ipairs(AllInsertionPoints) do
 			if #actor.GetTags(InsertionPoint) > 1 then
 				local Group = actor.GetTag(InsertionPoint, 1)

@@ -110,25 +110,25 @@ function teamelimination:OnRoundStageSet(RoundStage)
 		end
 	elseif RoundStage == "InProgress" then
 		local VipCandidates = gamemode.GetPlayerList("Lives", self.BlueTeamId, true, 1, false)
-
 		local VipIndex = umath.random(#VipCandidates)
-		actor.AddTag(VipCandidates[VipIndex], self.VipTag)
+		self.VipCharacter = player.GetCharacter(VipCandidates[VipIndex])
 		player.ShowGameMessage(VipCandidates[VipIndex], "You're the VIP this round", 5.0)
-
-		gamemode.BroadcastGameMessage("VIP is on site", 3.0)
 	end
 end
 
 function teamelimination:OnCharacterDied(Character, CharacterController, KillerController)
+	if Character ~= nil and self.VipCharacter ~= nil then
+		if actor.__tostring(self.VipCharacter) == actor.__tostring(Character) then
+			gamemode.BroadcastGameMessage("VIP has been eliminated", 3.0)
+			gamemode.AddGameStat("Result=Team2")
+			gamemode.AddGameStat("Summary=BlueEliminated")
+			gamemode.AddGameStat("CompleteObjectives=EliminateRed")
+			gamemode.SetRoundStage("PostRoundWait")
+		end
+	end
+
 	if gamemode.GetRoundStage() == "PreRoundWait" or gamemode.GetRoundStage() == "InProgress" then
 		if CharacterController ~= nil then
-			if actor.HasTag(CharacterController, self.VipTag) then
-				gamemode.BroadcastGameMessage("VIP has been eliminated", 3.0)
-				gamemode.AddGameStat("Result=Team2")
-				gamemode.AddGameStat("Summary=BlueEliminated")
-				gamemode.AddGameStat("CompleteObjectives=EliminateRed")
-				gamemode.SetRoundStage("PostRoundWait")
-			end
 			player.SetLives(CharacterController, player.GetLives(CharacterController) - 1)
 			timer.Set(self, "CheckEndRoundTimer", 1.0, false);
 		end
